@@ -9,18 +9,19 @@ import seaborn as sns
 def load_and_preprocess_data(filepath):
     df = pd.read_csv(filepath)
     
-    # Encode Gender (Male/Female) to numeric
+    # Encoding the gender to 0/1
     le = LabelEncoder()
     df['Gender'] = le.fit_transform(df['Gender'])
     
     X = df[['Age', 'Gender', 'Height', 'Weight']] 
     y = df['Label']
+    # print(X)
     
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
     
-    # Scale the features
+    # Preprocessing 
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
@@ -57,7 +58,6 @@ class KNNClassifier:
         return np.mean(predictions == y_test)
 
 def visualize_results(y_test, predictions, title, k, dist):
-    # Create confusion matrix
     cm = confusion_matrix(y_test, predictions)
     plt.figure(figsize=(10, 8))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
@@ -79,13 +79,13 @@ dist=input("euclidean(e) or manhattan(m): ")
 knn = KNNClassifier(k, dist)
 knn.fit(pd.DataFrame(X_train), y_train)
 
-# Make predictions
+# Predictions
 predictions = knn.predict(X_test)
 
 accuracy = knn.score(X_test, y_test)
 print(f"\nAccuracy: {accuracy:.4f}")
 
-# Print classification report
+# Classification report
 print("\nClassification Report:")
 report = classification_report(y_test, predictions)
 print(report)
@@ -93,5 +93,5 @@ print(report)
 report_df = pd.DataFrame([classification_report(y_test, predictions, output_dict=True)]).transpose()
 report_df.to_csv(f'results/classification_report_k{k}_with_{dist}.csv')
 
-
+# Visualization
 visualize_results(y_test, predictions, "KNN Classification Results", k, dist)
